@@ -7,6 +7,26 @@ document.addEventListener('DOMContentLoaded',()=>{
     score=0
     let flag=0
 
+    //left,right,up,down,buttons
+    const up=document.querySelector("button")
+    const down=document.querySelector("#DOWN")
+    const left=document.querySelector("#LEFT")
+    const right=document.querySelector("#RIGHT")
+
+    up.addEventListener("click",()=>{
+       upKey()
+    })
+    down.addEventListener("click",()=>{
+        downKey()
+     })
+     left.addEventListener("click",()=>{
+        leftKey()
+     })
+     right.addEventListener("click",()=>{
+        rightKey()
+     })
+
+
     //represent value with div
     let squares=[]
     
@@ -371,7 +391,8 @@ document.addEventListener('DOMContentLoaded',()=>{
                 resultDisplay.innerHTML = 'YOU LOSE'
                 alert("YOU LOSE")
                 document.removeEventListener('keyup',keyPressed)
-                  }
+                
+                }
         }
     }
 })
