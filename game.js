@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded',()=>{
                 squares[i].style.backgroundColor = "NAVY";
             }
             else if(squares[i].innerHTML==128){
-                squares[i].style.backgroundColor = "PINKY";
+                squares[i].style.backgroundColor = "PINK";
             }
             else if(squares[i].innerHTML==256){
                 squares[i].style.backgroundColor = "YELLOW";
@@ -279,6 +279,10 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
         generateRandom(2)
         generateRandom(4)
+        // generateRandom(256)
+        // generateRandom(512)
+        // generateRandom(1024)
+        // generateRandom(2048)
         addColor()
    //swipeRight()
     }
