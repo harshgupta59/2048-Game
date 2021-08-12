@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     let flag=0
 
     //left,right,up,down,buttons
-    const up=document.querySelector("button")
-    const down=document.querySelector("#DOWN")
-    const left=document.querySelector("#LEFT")
-    const right=document.querySelector("#RIGHT")
+    const up=document.querySelector("#up")
+    const down=document.querySelector("#down")
+    const left=document.querySelector("#left")
+    const right=document.querySelector("#right")
 
     up.addEventListener("click",()=>{
        upKey()
@@ -256,6 +256,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     //when right key is pressed
     function rightKey(){
+
         let duplicateSquares=[]
         for(let i=0;i<16;i++){
             duplicateSquares.push(parseInt(squares[i].innerHTML))
@@ -276,6 +277,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     //when left key is pressed
     function leftKey(){
+
         let duplicateSquares=[]
         for(let i=0;i<16;i++){
             duplicateSquares.push(parseInt(squares[i].innerHTML))
@@ -296,6 +298,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     //when up key is pressed
     function upKey(){
+
         let duplicateSquares=[]
         for(let i=0;i<16;i++){
             duplicateSquares.push(parseInt(squares[i].innerHTML))
@@ -316,6 +319,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     //when down key is pressed
     function downKey(){
+
         let duplicateSquares=[]
         for(let i=0;i<16;i++){
             duplicateSquares.push(parseInt(squares[i].innerHTML))
@@ -337,7 +341,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     //create a grid
     function createBoard(){
-        //alert("DSV");
+ 
         for(let i=0;i<size*size;i++){
             var square=document.createElement('div')
             square.innerHTML = 0;
@@ -353,6 +357,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    
     //check for winning state
     function checkforWin(){
+
         for(let i=0;i<squares.length;i++){
             if(squares[i].innerHTML==2048){
                 resultDisplay.innerHTML = 'YOU WIN'
@@ -364,6 +369,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     //checkforLose
     function checkforLose(){
+        
         let zeros=0
         for(let i=0;i<squares.length;i++){
            
