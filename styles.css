@@ -23,16 +23,27 @@
 }
 
 .score-container{
+    background-color: mediumseagreen;
     height: 60px;
     width: 400px;
     border-style: groove;
+    font-size:x-large;
 }
 
-.score-title , #score{
-    font-size:x-large;
-    
-}
 
 #result{
-    font-size:xx-large;
+    font-size:x-large;
+}
+#UP:hover, #LEFT:hover, #RIGHT:hover, #DOWN:hover{
+    background-color: green;
+}
+#UP, #LEFT, #RIGHT,#DOWN{
+    background-color: grey;
+    color: black;
+    height: 50px;
+    width: 60px;
+    
+}
+#UP{
+    margin-left: 65px;
 }
