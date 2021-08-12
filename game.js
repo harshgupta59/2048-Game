@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded',()=>{
 
     const gridDisplay=document.querySelector(".grid");
-    const scoreDeisplay=document.querySelector("#score");
+    const scoreDisplay=document.querySelector("#score");
     const resultDisplay=document.querySelector("#result")
     size=4;
     score=0
+    let flag=0
 
     //represent value with div
     let squares=[]
@@ -33,9 +34,14 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     document.addEventListener('keyup',keyPressed)
 
-    //addcolor
+    //add unique color
     function addColor(){
+        score=0
         for(let i=0;i<squares.length;i++){
+            if(squares[i].innerHTML!=2 && squares[i].innerHTML!=4){
+                score+=parseInt(squares[i].innerHTML);
+                scoreDisplay.innerHTML=score
+            }
             if(squares[i].innerHTML==2){
                 squares[i].style.backgroundColor = "GREY";
             }
@@ -84,9 +90,7 @@ document.addEventListener('DOMContentLoaded',()=>{
                 options.push(i);
             }
         }
-      //  console.log(options);
         if(options.length>0){
-           // alert("fd");
             let spot= Math.floor(Math.random() * options.length)
             let r = Math.random();
             let num=0;
@@ -102,17 +106,10 @@ document.addEventListener('DOMContentLoaded',()=>{
             // var random_color = colors[Math.floor(Math.random() * colors.length)];
             // document.body.style.backgroundColor = random_color;
 
-                
-                
-        }
-        else{
-            resultDisplay.innerHTML = 'YOU LOSE'
-            alert("YOU LOSE")
-            document.removeEventListener('keyup',keyPressed)
         }
     }
 
-    //merge equal adjacent pairs
+    //merge equal adjacent pairs of rows
     function mergeRow(){
         for(let i=0;i<squares.length-1;i++){
             let a=parseInt(squares[i].innerHTML);
@@ -120,14 +117,12 @@ document.addEventListener('DOMContentLoaded',()=>{
            if((i+1)%4!==0 && a==b){
                squares[i+1].innerHTML=a+b
                squares[i].innerHTML=0;
-               score+=a+b
-               scoreDeisplay.innerHTML = score
            }
         }
         checkforWin()
     }
 
-
+    //merge equal adjacent pairs of cols
     function mergeCol(){
         for(let i=0;i<squares.length-4;i++){
             let a=parseInt(squares[i].innerHTML);
@@ -135,8 +130,6 @@ document.addEventListener('DOMContentLoaded',()=>{
            if(a==b){
                squares[i+size].innerHTML=0
                squares[i].innerHTML=a+b;
-               score+=a+b
-               scoreDeisplay.innerHTML = score
            }
         }
         checkforWin()
@@ -191,7 +184,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
     }
 
-
+    //swipe up
     function swipeUp(){
        
         for(let i=0;i<size;i++){
@@ -211,7 +204,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
     }
 
-
+    //swipe down
     function swipeDown(){
        
         for(let i=0;i<size;i++){
@@ -231,44 +224,98 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
     }
 
+    //checkEqual
+    function checkEqual(a1,a2){
+        for(let i=0;i<a1.length;i++){
+            if(a1[i]!=a2[i].innerHTML){
+                return false;
+            }
+        }
+        return true;
+    }
 
+    //when right key is pressed
     function rightKey(){
-
+        let duplicateSquares=[]
+        for(let i=0;i<16;i++){
+            duplicateSquares.push(parseInt(squares[i].innerHTML))
+        }
         swipeRight()
         mergeRow()
         swipeRight()
-        generateRandom()
+        if(checkEqual(duplicateSquares,squares)==false){
+          generateRandom()
+        }
+        else{
+            if(flag==0){
+                checkforLose()
+            }
+            }
         addColor()
     }
 
+    //when left key is pressed
     function leftKey(){
-
+        let duplicateSquares=[]
+        for(let i=0;i<16;i++){
+            duplicateSquares.push(parseInt(squares[i].innerHTML))
+        }
         swipeLeft()
         mergeRow()
         swipeLeft()
-        generateRandom()
+        if(checkEqual(duplicateSquares,squares)==false){
+            generateRandom()
+          }
+          else{
+            if(flag==0){
+                checkforLose()
+            }
+            }
         addColor()
     }
 
+    //when up key is pressed
     function upKey(){
-        
+        let duplicateSquares=[]
+        for(let i=0;i<16;i++){
+            duplicateSquares.push(parseInt(squares[i].innerHTML))
+        }
         swipeUp()
         mergeCol()
         swipeUp()
-        generateRandom()
+        if(checkEqual(duplicateSquares,squares)==false){
+            generateRandom()
+          }
+          else{
+            if(flag==0){
+                checkforLose()
+            }
+            }
         addColor()
     }
 
+    //when down key is pressed
     function downKey(){
-        
+        let duplicateSquares=[]
+        for(let i=0;i<16;i++){
+            duplicateSquares.push(parseInt(squares[i].innerHTML))
+        }
         swipeDown()
         mergeCol()
         swipeDown()
-        generateRandom()
+        if(checkEqual(duplicateSquares,squares)==false){
+            generateRandom()
+          }
+          else{
+            if(flag==0){
+                checkforLose()
+            }
+          
+          }
         addColor()
     }
 
-
+    //create a grid
     function createBoard(){
         //alert("DSV");
         for(let i=0;i<size*size;i++){
@@ -279,17 +326,12 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
         generateRandom(2)
         generateRandom(4)
-        // generateRandom(256)
-        // generateRandom(512)
-        // generateRandom(1024)
-        // generateRandom(2048)
         addColor()
-   //swipeRight()
     }
 
     createBoard()
    
-    //checkforwin
+    //check for winning state
     function checkforWin(){
         for(let i=0;i<squares.length;i++){
             if(squares[i].innerHTML==2048){
@@ -300,6 +342,38 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
     }
 
+    //checkforLose
+    function checkforLose(){
+        let zeros=0
+        for(let i=0;i<squares.length;i++){
+           
+            if(squares[i].innerHTML==0){
+                zeros++;
+            }
+        }
+        if(zeros==0){
+            let duplicateSquares=[]
+             for(let i=0;i<16;i++){
+                duplicateSquares.push(parseInt(squares[i].innerHTML))
+             }
+             flag=1
+                upKey()
+                downKey()
+                leftKey()
+                rightKey()
+                if(checkEqual(duplicateSquares,squares)==false){
+                    for(let i=0;i<16;i++){
+                        squares[i].innerHTML=duplicateSquares[i];
+                    }
+                    flag=0
+                  }
+                else{
+                resultDisplay.innerHTML = 'YOU LOSE'
+                alert("YOU LOSE")
+                document.removeEventListener('keyup',keyPressed)
+                  }
+        }
+    }
 })
 
 
