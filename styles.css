@@ -1,5 +1,3 @@
-
-
 .grid{
     width: 400px;
     flex-wrap: wrap;
@@ -30,20 +28,22 @@
     font-size:x-large;
 }
 
-
 #result{
     font-size:x-large;
 }
-#UP:hover, #LEFT:hover, #RIGHT:hover, #DOWN:hover{
+
+#up:hover, #left:hover, #right:hover, #down:hover{
     background-color: green;
 }
-#UP, #LEFT, #RIGHT,#DOWN{
+
+#up, #left, #right,#down{
     background-color: grey;
     color: black;
     height: 50px;
     width: 60px;
     
 }
-#UP{
+
+#up{
     margin-left: 65px;
 }
