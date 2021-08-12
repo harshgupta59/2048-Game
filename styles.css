@@ -1,0 +1,38 @@
+
+
+.grid{
+    width: 400px;
+    flex-wrap: wrap;
+    height: 400px;
+    display: flex;
+    background-color: rgb(153, 137, 116);
+    border-style:groove;
+    border-radius: 15px;
+}
+
+.grid div{
+    width: 94px;
+    height: 94px;
+    background-color: rgb(212, 193, 139);
+    line-height: 90px; 
+    text-align: center;
+    font-size:xx-large;
+    font-weight: bold;
+    border-style:groove;
+    border-radius: 15px;
+}
+
+.score-container{
+    height: 60px;
+    width: 400px;
+    border-style: groove;
+}
+
+.score-title , #score{
+    font-size:x-large;
+    
+}
+
+#result{
+    font-size:xx-large;
+}
