@@ -1,4 +1,4 @@
-# harshgupta59.github.io
+# 2048 GAME
 
 ### LIVE - https://harshgupta59.github.io/
 
