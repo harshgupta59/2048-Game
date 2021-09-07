@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     const gridDisplay=document.querySelector(".grid");
     const scoreDisplay=document.querySelector("#score");
-    const resultDisplay=document.querySelector("#result")
+   // const resultDisplay=document.querySelector("#result")
     size=4;
     score=0
     let flag=0
@@ -407,10 +407,8 @@ document.addEventListener('DOMContentLoaded',()=>{
                     flag=0
                   }
                 else{
-                resultDisplay.innerHTML = 'YOU LOSE'
                 alert("YOU LOSE")
                 document.removeEventListener('keyup',keyPressed)
-                
                 }
         }
     }
