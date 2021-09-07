@@ -7,7 +7,13 @@
     border-style:groove;
     border-radius: 15px;
 }
-
+body{
+    margin-left: 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/2048_logo.svg/1200px-2048_logo.svg.png");
+}
 .grid div{
     width: 94px;
     height: 94px;
@@ -21,29 +27,31 @@
 }
 
 .score-container{
-    background-color: mediumseagreen;
-    height: 60px;
-    width: 400px;
+    padding: 10px;
+    background-color: orange;
+    height: 30px;
+    width: 200px;
     border-style: groove;
     font-size:x-large;
 }
 
+
 #result{
     font-size:x-large;
 }
-
-#up:hover, #left:hover, #right:hover, #down:hover{
+button:hover{
     background-color: green;
 }
 
-#up, #left, #right,#down{
+button{
     background-color: grey;
     color: black;
     height: 50px;
-    width: 60px;
-    
+    width: 60px;   
 }
-
+#reset{
+    width: 120px;
+}
 #up{
     margin-left: 65px;
 }
