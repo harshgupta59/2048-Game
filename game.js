@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     const left=document.querySelector("#left")
     const right=document.querySelector("#right")
 
+    const res=document.querySelector("#reset")
+
     up.addEventListener("click",()=>{
        upKey()
     })
@@ -26,7 +28,6 @@ document.addEventListener('DOMContentLoaded',()=>{
         rightKey()
      })
 
-
     //represent value with div
     let squares=[]
     
@@ -34,21 +35,21 @@ document.addEventListener('DOMContentLoaded',()=>{
     const keyPressed=(e)=>{
         e = e || window.event;
 
+        // up arrow
         if (e.keyCode == '38') {
-            // up arrow
             upKey()
         }
+        // down arrow
         else if (e.keyCode == '40') {
-            // down arrow
             downKey()
         }
+        // left arrow
         else if (e.keyCode == '37') {
             leftKey()
-        // left arrow
         }
+        // right arrow
         else if (e.keyCode == '39') {
             rightKey()
-        // right arrow
         }
     }
 
@@ -217,7 +218,6 @@ document.addEventListener('DOMContentLoaded',()=>{
             let missing = 4 - filteredCols.length
             let zeros = Array(missing).fill(0)
             filteredCols = filteredCols.concat(zeros)
-         //   alert("Dsv")
             for(let j=0;j<4;j++){
                 squares[i+size*j].innerHTML = filteredCols[j];
             }
@@ -366,6 +366,19 @@ document.addEventListener('DOMContentLoaded',()=>{
             }
         }
     }
+
+    //reset
+    function resetGame(){
+        score=0;
+        for(let i=0;i<size*size;i++){
+            squares[i].innerHTML = 0;
+        }
+        generateRandom(2)
+        generateRandom(4)
+        addColor()        
+    }
+
+    res.addEventListener("click",resetGame)
 
     //checkforLose
     function checkforLose(){
