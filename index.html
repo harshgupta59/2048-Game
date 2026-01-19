@@ -1,31 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>2048</title>
         <link rel="stylesheet" href="styles.css">
-        <script src="game.js"></script>
     </head>
     <body>
-        <div class="score-container">
-            SCORE : <span id="score">0</span>
+        <div class="game-wrapper">
+            <header class="game-header">
+                <h1 class="title">2048</h1>
+            </header>
+            <header class="game-header">
+                <div class="header-right">
+                            <div class="score-container">SCORE
+                                <span id="score" aria-live="polite">0</span>
+                            </div>
+                    <button id="reset" class="control-primary">NEW GAME</button>
+                </div>
+            </header>
+
+            <main class="game-main">
+                <div class="grid" aria-label="2048 game board"></div>
+
+                <div class="controls">
+                    <div class="pad up-wrap">
+                        <button id="up" class="arrow-btn">▲</button>
+                    </div>
+                    <div class="pad row-wrap">
+                        <button id="left" class="arrow-btn">◀</button>
+                        <button id="down" class="arrow-btn">▼</button>
+                        <button id="right" class="arrow-btn">▶</button>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="game-foot">
+                <p class="instructions">Use arrow keys or on-screen buttons to move tiles. Combine like numbers to reach 2048.</p>
+            </footer>
         </div>
-        <br>
-        <button id='reset'>RESET GAME</button>
-        <br>
-        <br>
 
-        <div class="grid"></div>
-
-        <br>
-        <br> 
-
-        <button id="up" >UP</button>
-
-        <br>
-        <br>
-
-        <button id="left">LEFT</button>
-        <button id="down">DOWN</button>
-        <button id="right">RIGHT</button>
+        <script src="game.js"></script>
+        <script src="ui.js"></script>
     </body>
 </html>
