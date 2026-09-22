@@ -69,26 +69,37 @@ function playPopSound(value) {
     if (!isSoundOn) return;
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Pitch increases as tile value increases
-    const baseFreq = 200;
-    const freqMultiplier = Math.log2(value) * 50; 
+    // Base frequency (C4)
+    const baseFreq = 261.63; 
+    const freqMultiplier = Math.log2(value) * 30; // gentler pitch increase
+    const targetFreq = baseFreq + freqMultiplier;
     
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
     
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(baseFreq + freqMultiplier, audioCtx.currentTime);
+    // Soothing Triangle wave gives a softer, bell-like tone
+    oscillator.type = 'triangle';
     
-    // Quick pop envelope
+    // Soft lowpass filter to cut out any harsh high frequencies
+    filter.type = 'lowpass';
+    filter.frequency.value = 1000;
+    
+    // Pitch Envelope (creates a soft "bloop" effect)
+    oscillator.frequency.setValueAtTime(targetFreq * 0.8, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(targetFreq, audioCtx.currentTime + 0.05);
+    
+    // Amplitude Envelope (soft attack, smooth release)
     gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.03); // slightly softer attack
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); // smooth, longer release
     
-    oscillator.connect(gainNode);
+    oscillator.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     
     oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.1);
+    oscillator.stop(audioCtx.currentTime + 0.3);
 }
 
 // Combo Animations
