@@ -34,7 +34,6 @@ const resetButton = document.getElementById('reset');
 const modeBtns = document.querySelectorAll('.mode-btn');
 const progressContainer = document.getElementById('progress-container');
 const progressFill = document.getElementById('progress-fill');
-const soundBtn = document.getElementById('zen-btn');
 const comboText = document.getElementById('combo-text');
 const gameContainer = document.getElementById('game-container');
 
@@ -50,100 +49,6 @@ modeBtns.forEach(btn => {
         initGame();
     });
 });
-
-// Sound Toggle
-soundBtn.addEventListener('click', () => {
-    isSoundOn = !isSoundOn;
-    if (isSoundOn) {
-        soundBtn.classList.add('active');
-        soundBtn.textContent = '🔊 Sound: ON';
-        initAudio();
-    } else {
-        soundBtn.classList.remove('active');
-        soundBtn.textContent = '🔊 Sound: OFF';
-    }
-});
-
-let delayNode = null;
-let feedbackGain = null;
-
-function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Setup Dreamy Echo/Reverb
-        delayNode = audioCtx.createDelay();
-        delayNode.delayTime.value = 0.4; // 400ms echo
-        
-        feedbackGain = audioCtx.createGain();
-        feedbackGain.gain.value = 0.3; // 30% feedback
-        
-        delayNode.connect(feedbackGain);
-        feedbackGain.connect(delayNode);
-        
-        delayNode.connect(audioCtx.destination);
-    }
-}
-
-// Ambient Sound Engine: Ultimate Soothing Zen Audio
-function playPopSound(value) {
-    if (!isSoundOn) return;
-    initAudio();
-    const now = audioCtx.currentTime;
-    
-    // Pure, warm sine wave
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    
-    // C Major Pentatonic Scale (inherently relaxing)
-    const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
-    let index = Math.max(0, Math.log2(value) - 2); 
-    if (index >= pentatonic.length) index = pentatonic.length - 1;
-    
-    // Pitch down one octave for extra warmth and depth
-    osc.frequency.setValueAtTime(pentatonic[index] * 0.5, now);
-    
-    // Very soft envelope: no clicks, gentle fade in and out
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.4, now + 0.1); // slow 100ms attack
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5); // very long 1.5s fade out
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination); // Direct sound
-    gain.connect(delayNode); // Send to Echo
-    
-    osc.start(now);
-    osc.stop(now + 2);
-}
-
-function playSlideSound() {
-    // Silence for sliding to keep the experience completely calm and uncluttered
-}
-
-function playChimeSound() {
-    if (!isSoundOn) return;
-    initAudio();
-    const now = audioCtx.currentTime;
-    
-    // A deep, resonant "Singing Bowl" for combos
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    
-    osc.frequency.setValueAtTime(130.81, now); // C3 (deep)
-    
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.6, now + 0.2); // very slow attack
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 3.0); // massive 3 second decay
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    gain.connect(delayNode);
-    
-    osc.start(now);
-    osc.stop(now + 4);
-}
 
 // Combo Animations
 function triggerShake() {
@@ -329,8 +234,6 @@ function slideLine(line) {
             score += newValue;
             mergesInMove++;
             
-            playPopSound(newValue);
-            
             if (newValue >= 512) {
                 triggerShake();
                 showComboText("EPIC!");
@@ -414,7 +317,6 @@ function move(direction) {
         
         if (mergesInMove > 1) {
             showComboText(`COMBO x${mergesInMove}!`);
-            playChimeSound();
         }
         
         // Add slight delay before spawning new tile so merge animation is visible

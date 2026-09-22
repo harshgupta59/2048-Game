@@ -146,41 +146,20 @@ body {
     background: #eee4da;
 }
 
-.zen-btn {
-    background: #d6cdc4;
-    color: #776e65;
-    border: none;
-    border-radius: 3px;
-    padding: 10px 15px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.zen-btn:hover {
-    background: #eee4da;
-}
-
-.zen-btn.active {
-    background: #f2b179;
-    color: white;
-}
-
 .restart-btn {
-    background: #8f7a66;
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--text-light);
     border: none;
-    border-radius: 3px;
-    padding: 10px 20px;
-    font-size: 18px;
+    border-radius: 6px;
+    padding: 0 20px;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .restart-btn:hover {
-    background: #9f8b77;
+    background-color: var(--highlight-color);
 }
 
 /* 
