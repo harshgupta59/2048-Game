@@ -1,10 +1,6 @@
 <h1 align="center">2048</h1>
 
 <p align="center">
-  <img src="https://harshgupta59.github.io/2048-Game/favicon.ico" alt="2048 Logo" width="100"/>
-</p>
-
-<p align="center">
   <strong>A modern, responsive, and completely vanilla JavaScript clone of the legendary 2048 puzzle game.</strong>
 </p>
 
