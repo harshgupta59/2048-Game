@@ -51,67 +51,74 @@ modeBtns.forEach(btn => {
     });
 });
 
+let popBuffer = null;
+let chimeBuffer = null;
+
 // Sound Toggle
-soundBtn.addEventListener('click', () => {
+soundBtn.addEventListener('click', async () => {
     isSoundOn = !isSoundOn;
     if (isSoundOn) {
         soundBtn.classList.add('active');
         soundBtn.textContent = '🔊 Sound: ON';
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        // Preload studio-quality sounds
+        if (!popBuffer) {
+            try {
+                const response = await fetch('https://actions.google.com/sounds/v1/cartoon/pop.ogg');
+                const arrayBuffer = await response.arrayBuffer();
+                popBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                
+                const chimeRes = await fetch('https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg');
+                const chimeArray = await chimeRes.arrayBuffer();
+                chimeBuffer = await audioCtx.decodeAudioData(chimeArray);
+            } catch (e) {
+                console.error("Failed to load audio samples:", e);
+            }
+        }
     } else {
         soundBtn.classList.remove('active');
         soundBtn.textContent = '🔊 Sound: OFF';
     }
 });
 
-// Sound Engine: Pentatonic Marimba Synthesizer
+// Sound Engine: Studio Quality Samples
 function playPopSound(value) {
-    if (!isSoundOn) return;
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!isSoundOn || !audioCtx || !popBuffer) return;
     
-    // C Major Pentatonic Scale frequencies (always harmonious when merging multiple pairs!)
-    const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+    const source = audioCtx.createBufferSource();
+    source.buffer = popBuffer;
     
-    // Map the tile value to an index in the scale (e.g., 4 -> index 0, 8 -> 1, 2048 -> 9)
-    let index = Math.max(0, Math.log2(value) - 2); 
-    if (index >= pentatonic.length) index = pentatonic.length - 1;
+    // Pitch increases as tile value increases (simulating tension)
+    // base speed is 1.0, increases by 0.1 for each power of 2
+    const rate = 1.0 + (Math.log2(value) * 0.08); 
+    source.playbackRate.value = Math.min(rate, 2.5); // cap at 2.5x speed
     
-    const targetFreq = pentatonic[index];
-    const now = audioCtx.currentTime;
+    // Slight volume reduction for the pop so it isn't overpowering
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.6;
     
-    // Main Body (Sine for purity)
-    const osc1 = audioCtx.createOscillator();
-    const gain1 = audioCtx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.value = targetFreq;
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
     
-    // Attack Transient (Triangle for a slight "wood/glass knock" at the start)
-    const osc2 = audioCtx.createOscillator();
-    const gain2 = audioCtx.createGain();
-    osc2.type = 'triangle';
-    osc2.frequency.value = targetFreq * 2.01; // slightly detuned octave
+    source.start(0);
+}
+
+function playChimeSound() {
+    if (!isSoundOn || !audioCtx || !chimeBuffer) return;
     
-    // Marimba Body Envelope
-    gain1.gain.setValueAtTime(0, now);
-    gain1.gain.linearRampToValueAtTime(0.6, now + 0.01);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    const source = audioCtx.createBufferSource();
+    source.buffer = chimeBuffer;
     
-    // Marimba Transient Envelope (fast click)
-    gain2.gain.setValueAtTime(0, now);
-    gain2.gain.linearRampToValueAtTime(0.3, now + 0.005);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.4;
     
-    osc1.connect(gain1);
-    gain1.connect(audioCtx.destination);
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
     
-    osc2.connect(gain2);
-    gain2.connect(audioCtx.destination);
-    
-    osc1.start(now);
-    osc1.stop(now + 0.5);
-    
-    osc2.start(now);
-    osc2.stop(now + 0.1);
+    source.start(0);
 }
 
 // Combo Animations
@@ -383,6 +390,7 @@ function move(direction) {
         
         if (mergesInMove > 1) {
             showComboText(`COMBO x${mergesInMove}!`);
+            playChimeSound();
         }
         
         // Add slight delay before spawning new tile so merge animation is visible
