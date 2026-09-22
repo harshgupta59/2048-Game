@@ -11,6 +11,9 @@ let isGameOver = false;
 let isMoving = false;
 let moveTimeout = null;
 
+// High Score State
+let bestScore = parseInt(localStorage.getItem('2048_bestScore')) || 0;
+
 // Game Mode State
 let currentMode = 'CLASSIC';
 let timeAttackInterval = null;
@@ -18,6 +21,7 @@ let timeAttackProgress = 100;
 
 // DOM Elements
 const scoreElement = document.getElementById('score');
+const bestScoreElement = document.getElementById('best-score');
 const tileContainer = document.getElementById('tile-container');
 const messageElement = document.getElementById('game-message');
 const messageText = document.getElementById('message-text');
@@ -107,6 +111,9 @@ function initGame() {
     isMoving = false;
     updateScore();
     hideMessage();
+    
+    // Set initial Best Score display
+    bestScoreElement.textContent = bestScore;
     
     // Initialize 4x4 board with nulls
     for (let r = 0; r < SIZE; r++) {
@@ -313,6 +320,12 @@ function checkGameOver() {
 
 function updateScore() {
     scoreElement.textContent = score;
+    
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('2048_bestScore', bestScore);
+        bestScoreElement.textContent = bestScore;
+    }
 }
 
 function showMessage(msg) {
