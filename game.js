@@ -64,42 +64,54 @@ soundBtn.addEventListener('click', () => {
     }
 });
 
-// Sound Engine
+// Sound Engine: Pentatonic Marimba Synthesizer
 function playPopSound(value) {
     if (!isSoundOn) return;
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Base frequency (C4)
-    const baseFreq = 261.63; 
-    const freqMultiplier = Math.log2(value) * 30; // gentler pitch increase
-    const targetFreq = baseFreq + freqMultiplier;
+    // C Major Pentatonic Scale frequencies (always harmonious when merging multiple pairs!)
+    const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
     
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
+    // Map the tile value to an index in the scale (e.g., 4 -> index 0, 8 -> 1, 2048 -> 9)
+    let index = Math.max(0, Math.log2(value) - 2); 
+    if (index >= pentatonic.length) index = pentatonic.length - 1;
     
-    // Soothing Triangle wave gives a softer, bell-like tone
-    oscillator.type = 'triangle';
+    const targetFreq = pentatonic[index];
+    const now = audioCtx.currentTime;
     
-    // Soft lowpass filter to cut out any harsh high frequencies
-    filter.type = 'lowpass';
-    filter.frequency.value = 1000;
+    // Main Body (Sine for purity)
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.value = targetFreq;
     
-    // Pitch Envelope (creates a soft "bloop" effect)
-    oscillator.frequency.setValueAtTime(targetFreq * 0.8, audioCtx.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(targetFreq, audioCtx.currentTime + 0.05);
+    // Attack Transient (Triangle for a slight "wood/glass knock" at the start)
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.value = targetFreq * 2.01; // slightly detuned octave
     
-    // Amplitude Envelope (soft attack, smooth release)
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.03); // slightly softer attack
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); // smooth, longer release
+    // Marimba Body Envelope
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.6, now + 0.01);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
     
-    oscillator.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    // Marimba Transient Envelope (fast click)
+    gain2.gain.setValueAtTime(0, now);
+    gain2.gain.linearRampToValueAtTime(0.3, now + 0.005);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
     
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.3);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    
+    osc1.start(now);
+    osc1.stop(now + 0.5);
+    
+    osc2.start(now);
+    osc2.stop(now + 0.1);
 }
 
 // Combo Animations
