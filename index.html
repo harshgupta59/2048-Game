@@ -25,10 +25,21 @@
 
         <div class="controls-row">
             <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
-            <button class="restart-btn" id="reset">New Game</button>
+            <div class="controls-group">
+                <select id="mode-selector" class="mode-selector">
+                    <option value="CLASSIC">Classic Mode</option>
+                    <option value="TIME_ATTACK">Time Attack</option>
+                </select>
+                <button class="restart-btn" id="reset">New Game</button>
+            </div>
         </div>
 
         <main class="game-container">
+            <!-- Progress bar for Time Attack mode -->
+            <div class="progress-bar-container" id="progress-container" style="display: none;">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+
             <!-- 
                 Frontend Concept: CSS Grid
                 The grid container is a 4x4 layout defined in CSS. 

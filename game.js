@@ -11,6 +11,11 @@ let isGameOver = false;
 let isMoving = false;
 let moveTimeout = null;
 
+// Game Mode State
+let currentMode = 'CLASSIC';
+let timeAttackInterval = null;
+let timeAttackProgress = 100;
+
 // DOM Elements
 const scoreElement = document.getElementById('score');
 const tileContainer = document.getElementById('tile-container');
@@ -18,6 +23,15 @@ const messageElement = document.getElementById('game-message');
 const messageText = document.getElementById('message-text');
 const retryButton = document.getElementById('retry');
 const resetButton = document.getElementById('reset');
+const modeSelector = document.getElementById('mode-selector');
+const progressContainer = document.getElementById('progress-container');
+const progressFill = document.getElementById('progress-fill');
+
+// Mode Selection
+modeSelector.addEventListener('change', (e) => {
+    currentMode = e.target.value;
+    initGame();
+});
 
 /*
   Frontend Concept: Object-Oriented UI
@@ -98,6 +112,44 @@ function initGame() {
     // Spawn initial 2 tiles
     addRandomTile();
     addRandomTile();
+    
+    // Handle Game Mode logic
+    if (currentMode === 'TIME_ATTACK') {
+        startTimeAttack();
+    } else {
+        stopTimeAttack();
+    }
+}
+
+// --- Time Attack Mechanics ---
+function startTimeAttack() {
+    stopTimeAttack();
+    timeAttackProgress = 100;
+    progressFill.style.transform = `scaleX(1)`;
+    progressContainer.style.display = 'block';
+    
+    // Run at 60fps (approx 16ms) for smooth progress bar shrinking
+    timeAttackInterval = setInterval(() => {
+        if (isGameOver || isMoving) return;
+        
+        // 2000ms timer
+        timeAttackProgress -= (100 / (2000 / 16));
+        
+        if (timeAttackProgress <= 0) {
+            // Timer hit 0! Spawn a tile!
+            timeAttackProgress = 100;
+            addRandomTile();
+            checkGameOver();
+        }
+        
+        // Update visual bar
+        progressFill.style.transform = `scaleX(${Math.max(0, timeAttackProgress / 100)})`;
+    }, 16);
+}
+
+function stopTimeAttack() {
+    if (timeAttackInterval) clearInterval(timeAttackInterval);
+    progressContainer.style.display = 'none';
 }
 
 function addRandomTile() {
@@ -218,6 +270,11 @@ function move(direction) {
             addRandomTile();
             checkGameOver();
             isMoving = false;
+            
+            // Reset the panic timer in Time Attack!
+            if (currentMode === 'TIME_ATTACK' && !isGameOver) {
+                startTimeAttack(); 
+            }
         }, 150);
     }
 }
