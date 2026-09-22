@@ -34,11 +34,15 @@
                     <button class="mode-btn active" data-mode="CLASSIC">Classic</button>
                     <button class="mode-btn" data-mode="TIME_ATTACK">Time Attack</button>
                 </div>
+                <button class="zen-btn" id="zen-btn">🎵 Zen: OFF</button>
                 <button class="restart-btn" id="reset">New Game</button>
             </div>
         </div>
 
-        <main class="game-container">
+        <main class="game-container" id="game-container">
+            <!-- Floating Combo Text -->
+            <div id="combo-text" class="combo-text"></div>
+            
             <!-- Progress bar for Time Attack mode -->
             <div class="progress-bar-container" id="progress-container" style="display: none;">
                 <div class="progress-bar-fill" id="progress-fill"></div>
@@ -76,6 +80,9 @@
             <p><strong>HOW TO PLAY:</strong> Use your <strong>arrow keys</strong> to move the tiles. On mobile, <strong>swipe</strong> the screen. Tiles with the same number merge into one when they touch. Add them up to reach <strong>2048!</strong></p>
         </footer>
     </div>
+
+    <!-- Background Lo-Fi Music (Royalty Free) -->
+    <audio id="bg-music" loop src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"></audio>
 
     <!-- Include JavaScript at the end of body so it loads after HTML is parsed -->
     <script src="game.js"></script>

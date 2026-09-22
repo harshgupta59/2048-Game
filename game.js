@@ -19,6 +19,9 @@ let currentMode = 'CLASSIC';
 let timeAttackInterval = null;
 let timeAttackStartTime = 0;
 let timeAttackDuration = 2000;
+let isZenMode = false;
+let audioCtx = null;
+let mergesInMove = 0;
 
 // DOM Elements
 const scoreElement = document.getElementById('score');
@@ -31,6 +34,10 @@ const resetButton = document.getElementById('reset');
 const modeBtns = document.querySelectorAll('.mode-btn');
 const progressContainer = document.getElementById('progress-container');
 const progressFill = document.getElementById('progress-fill');
+const zenBtn = document.getElementById('zen-btn');
+const bgMusic = document.getElementById('bg-music');
+const comboText = document.getElementById('combo-text');
+const gameContainer = document.getElementById('game-container');
 
 // Mode Selection
 modeBtns.forEach(btn => {
@@ -44,6 +51,64 @@ modeBtns.forEach(btn => {
         initGame();
     });
 });
+
+// Zen Mode Toggle
+zenBtn.addEventListener('click', () => {
+    isZenMode = !isZenMode;
+    if (isZenMode) {
+        zenBtn.classList.add('active');
+        zenBtn.textContent = '🎵 Zen: ON';
+        bgMusic.volume = 0.3;
+        bgMusic.play().catch(e => console.log("Audio play blocked", e));
+        
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } else {
+        zenBtn.classList.remove('active');
+        zenBtn.textContent = '🎵 Zen: OFF';
+        bgMusic.pause();
+    }
+});
+
+// Sound Engine
+function playPopSound(value) {
+    if (!isZenMode) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Pitch increases as tile value increases
+    const baseFreq = 200;
+    const freqMultiplier = Math.log2(value) * 50; 
+    
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(baseFreq + freqMultiplier, audioCtx.currentTime);
+    
+    // Quick pop envelope
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1);
+}
+
+// Combo Animations
+function triggerShake() {
+    gameContainer.classList.remove('shake');
+    void gameContainer.offsetWidth; // trigger reflow
+    gameContainer.classList.add('shake');
+}
+
+function showComboText(text) {
+    comboText.textContent = text;
+    comboText.classList.remove('show');
+    void comboText.offsetWidth; // trigger reflow
+    comboText.classList.add('show');
+}
 
 /*
   Frontend Concept: Object-Oriented UI
@@ -213,6 +278,14 @@ function slideLine(line) {
             let newValue = tiles[i].value * 2;
             tiles[i].setValue(newValue);
             score += newValue;
+            mergesInMove++;
+            
+            playPopSound(newValue);
+            
+            if (newValue >= 512) {
+                triggerShake();
+                showComboText("EPIC!");
+            }
             
             // Flag win condition
             if (newValue === 2048 && !hasWon) {
@@ -238,6 +311,7 @@ function move(direction) {
     if (isGameOver || isMoving) return;
     
     let moved = false;
+    mergesInMove = 0;
     
     if (direction === 'LEFT' || direction === 'RIGHT') {
         for (let r = 0; r < SIZE; r++) {
@@ -288,6 +362,11 @@ function move(direction) {
     if (moved) {
         isMoving = true;
         updateScore();
+        
+        if (mergesInMove > 1) {
+            showComboText(`COMBO x${mergesInMove}!`);
+        }
+        
         // Add slight delay before spawning new tile so merge animation is visible
         moveTimeout = setTimeout(() => {
             addRandomTile();
