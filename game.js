@@ -51,11 +51,8 @@ modeBtns.forEach(btn => {
     });
 });
 
-let popBuffer = null;
-let chimeBuffer = null;
-
 // Sound Toggle
-soundBtn.addEventListener('click', async () => {
+soundBtn.addEventListener('click', () => {
     isSoundOn = !isSoundOn;
     if (isSoundOn) {
         soundBtn.classList.add('active');
@@ -63,62 +60,113 @@ soundBtn.addEventListener('click', async () => {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        
-        // Preload studio-quality sounds
-        if (!popBuffer) {
-            try {
-                const response = await fetch('https://actions.google.com/sounds/v1/cartoon/pop.ogg');
-                const arrayBuffer = await response.arrayBuffer();
-                popBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-                
-                const chimeRes = await fetch('https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg');
-                const chimeArray = await chimeRes.arrayBuffer();
-                chimeBuffer = await audioCtx.decodeAudioData(chimeArray);
-            } catch (e) {
-                console.error("Failed to load audio samples:", e);
-            }
-        }
     } else {
         soundBtn.classList.remove('active');
         soundBtn.textContent = '🔊 Sound: OFF';
     }
 });
 
-// Sound Engine: Studio Quality Samples
+// Foley Sound Engine: Authentic physical tile sounds
 function playPopSound(value) {
-    if (!isSoundOn || !audioCtx || !popBuffer) return;
+    if (!isSoundOn || !audioCtx) return;
+    const now = audioCtx.currentTime;
     
-    const source = audioCtx.createBufferSource();
-    source.buffer = popBuffer;
+    // Body (Wood resonance)
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+    osc.type = 'sine';
     
-    // Pitch increases as tile value increases (simulating tension)
-    // base speed is 1.0, increases by 0.1 for each power of 2
-    const rate = 1.0 + (Math.log2(value) * 0.08); 
-    source.playbackRate.value = Math.min(rate, 2.5); // cap at 2.5x speed
+    // Pitch depends slightly on the tile value (200-400Hz range)
+    const baseFreq = 200 + (Math.log2(value) * 15);
+    osc.frequency.setValueAtTime(baseFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.8, now + 0.05); // pitch drop for impact
     
-    // Slight volume reduction for the pop so it isn't overpowering
-    const gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.6;
+    oscGain.gain.setValueAtTime(0, now);
+    oscGain.gain.linearRampToValueAtTime(0.8, now + 0.005);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
     
-    source.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    // Snap (Physical impact noise)
+    const bufferSize = audioCtx.sampleRate * 0.05; // 50ms of noise
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
     
-    source.start(0);
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 1200; // sharp wood knock
+    
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.8, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+    
+    osc.connect(oscGain);
+    oscGain.connect(audioCtx.destination);
+    
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(audioCtx.destination);
+    
+    osc.start(now);
+    osc.stop(now + 0.1);
+    noise.start(now);
+}
+
+function playSlideSound() {
+    if (!isSoundOn || !audioCtx) return;
+    const now = audioCtx.currentTime;
+    
+    const bufferSize = audioCtx.sampleRate * 0.1; // 100ms
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.5; // quieter white noise
+    }
+    
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(400, now); // start muffled
+    filter.frequency.linearRampToValueAtTime(1200, now + 0.05); // open up (whoosh)
+    filter.frequency.linearRampToValueAtTime(400, now + 0.1); // muffle again
+    
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.linearRampToValueAtTime(0.4, now + 0.05);
+    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+    
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    noise.start(now);
 }
 
 function playChimeSound() {
-    if (!isSoundOn || !audioCtx || !chimeBuffer) return;
+    // For combos, we'll do a highly resonant satisfying "ding"
+    if (!isSoundOn || !audioCtx) return;
+    const now = audioCtx.currentTime;
     
-    const source = audioCtx.createBufferSource();
-    source.buffer = chimeBuffer;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
     
-    const gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.4;
+    osc.frequency.setValueAtTime(880, now); // A5
+    osc.frequency.exponentialRampToValueAtTime(1760, now + 0.1); // Sweep up to A6
     
-    source.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.5, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
     
-    source.start(0);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.5);
 }
 
 // Combo Animations
