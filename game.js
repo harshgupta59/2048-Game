@@ -19,7 +19,7 @@ let currentMode = 'CLASSIC';
 let timeAttackInterval = null;
 let timeAttackStartTime = 0;
 let timeAttackDuration = 2000;
-let isZenMode = false;
+let isSoundOn = false;
 let audioCtx = null;
 let mergesInMove = 0;
 
@@ -34,8 +34,7 @@ const resetButton = document.getElementById('reset');
 const modeBtns = document.querySelectorAll('.mode-btn');
 const progressContainer = document.getElementById('progress-container');
 const progressFill = document.getElementById('progress-fill');
-const zenBtn = document.getElementById('zen-btn');
-const bgMusic = document.getElementById('bg-music');
+const soundBtn = document.getElementById('zen-btn');
 const comboText = document.getElementById('combo-text');
 const gameContainer = document.getElementById('game-container');
 
@@ -52,26 +51,22 @@ modeBtns.forEach(btn => {
     });
 });
 
-// Zen Mode Toggle
-zenBtn.addEventListener('click', () => {
-    isZenMode = !isZenMode;
-    if (isZenMode) {
-        zenBtn.classList.add('active');
-        zenBtn.textContent = '🎵 Zen: ON';
-        bgMusic.volume = 0.3;
-        bgMusic.play().catch(e => console.log("Audio play blocked", e));
-        
+// Sound Toggle
+soundBtn.addEventListener('click', () => {
+    isSoundOn = !isSoundOn;
+    if (isSoundOn) {
+        soundBtn.classList.add('active');
+        soundBtn.textContent = '🔊 Sound: ON';
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     } else {
-        zenBtn.classList.remove('active');
-        zenBtn.textContent = '🎵 Zen: OFF';
-        bgMusic.pause();
+        soundBtn.classList.remove('active');
+        soundBtn.textContent = '🔊 Sound: OFF';
     }
 });
 
 // Sound Engine
 function playPopSound(value) {
-    if (!isZenMode) return;
+    if (!isSoundOn) return;
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     // Pitch increases as tile value increases
