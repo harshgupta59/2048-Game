@@ -23,14 +23,21 @@ const messageElement = document.getElementById('game-message');
 const messageText = document.getElementById('message-text');
 const retryButton = document.getElementById('retry');
 const resetButton = document.getElementById('reset');
-const modeSelector = document.getElementById('mode-selector');
+const modeBtns = document.querySelectorAll('.mode-btn');
 const progressContainer = document.getElementById('progress-container');
 const progressFill = document.getElementById('progress-fill');
 
 // Mode Selection
-modeSelector.addEventListener('change', (e) => {
-    currentMode = e.target.value;
-    initGame();
+modeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Remove active class from all
+        modeBtns.forEach(b => b.classList.remove('active'));
+        // Add active class to clicked
+        e.target.classList.add('active');
+        
+        currentMode = e.target.dataset.mode;
+        initGame();
+    });
 });
 
 /*

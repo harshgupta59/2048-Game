@@ -26,10 +26,10 @@
         <div class="controls-row">
             <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
             <div class="controls-group">
-                <select id="mode-selector" class="mode-selector">
-                    <option value="CLASSIC">Classic Mode</option>
-                    <option value="TIME_ATTACK">Time Attack</option>
-                </select>
+                <div class="mode-toggle" id="mode-selector">
+                    <button class="mode-btn active" data-mode="CLASSIC">Classic</button>
+                    <button class="mode-btn" data-mode="TIME_ATTACK">Time Attack</button>
+                </div>
                 <button class="restart-btn" id="reset">New Game</button>
             </div>
         </div>

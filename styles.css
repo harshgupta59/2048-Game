@@ -100,6 +100,8 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .game-intro {
@@ -111,24 +113,37 @@ body {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
-.mode-selector {
-    background: #8f7a66;
-    color: #f9f6f2;
-    border: none;
+.mode-toggle {
+    display: flex;
+    background: #d6cdc4;
     border-radius: 4px;
-    padding: 0 15px;
+    overflow: hidden;
     height: 40px;
-    font-family: inherit;
+}
+
+.mode-btn {
+    background: transparent;
+    border: none;
+    color: #776e65;
     font-weight: bold;
-    font-size: 16px;
+    padding: 0 15px;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-family: inherit;
+    font-size: 15px;
     outline: none;
 }
 
-.mode-selector:hover {
-    background: #9f8b77;
+.mode-btn.active {
+    background: #8f7a66;
+    color: white;
+}
+
+.mode-btn:not(.active):hover {
+    background: #eee4da;
 }
 
 .restart-btn {
