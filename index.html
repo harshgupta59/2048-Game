@@ -1,31 +1,68 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>2048</title>
-        <link rel="stylesheet" href="styles.css">
-        <script src="game.js"></script>
-    </head>
-    <body>
-        <div class="score-container">
-            SCORE : <span id="score">0</span>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 
+            Frontend Concept: Semantic HTML
+            Instead of just using <div>s for everything, using <header> and <main> 
+            tells the browser (and screen readers) what the structure of the page is. 
+        -->
+        <header class="header">
+            <h1 class="title">2048</h1>
+            <div class="scores-container">
+                <div class="score-box">
+                    <div class="score-label">SCORE</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls-row">
+            <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
+            <button class="restart-btn" id="reset">New Game</button>
         </div>
-        <br>
-        <button id='reset'>RESET GAME</button>
-        <br>
-        <br>
 
-        <div class="grid"></div>
+        <main class="game-container">
+            <!-- 
+                Frontend Concept: CSS Grid
+                The grid container is a 4x4 layout defined in CSS. 
+                We create 16 "grid-cell" elements to act as the permanent background squares.
+                The actual numbered tiles will be separate elements absolutely positioned on top.
+            -->
+            <div class="grid" id="grid">
+                <!-- 16 empty cells for the background -->
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+                <div class="grid-cell"></div><div class="grid-cell"></div>
+            </div>
+            
+            <!-- This container holds the actual moving tiles -->
+            <div class="tile-container" id="tile-container"></div>
+            
+            <!-- Game Over / Win overlay -->
+            <div class="game-message" id="game-message">
+                <p id="message-text">Game Over!</p>
+                <button class="retry-btn" id="retry">Try Again</button>
+            </div>
+        </main>
 
-        <br>
-        <br> 
+        <footer class="footer">
+            <p><strong>HOW TO PLAY:</strong> Use your <strong>arrow keys</strong> to move the tiles. On mobile, <strong>swipe</strong> the screen. Tiles with the same number merge into one when they touch. Add them up to reach <strong>2048!</strong></p>
+        </footer>
+    </div>
 
-        <button id="up" >UP</button>
-
-        <br>
-        <br>
-
-        <button id="left">LEFT</button>
-        <button id="down">DOWN</button>
-        <button id="right">RIGHT</button>
-    </body>
+    <!-- Include JavaScript at the end of body so it loads after HTML is parsed -->
+    <script src="game.js"></script>
+</body>
 </html>

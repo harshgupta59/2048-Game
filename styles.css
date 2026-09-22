@@ -1,57 +1,295 @@
-.grid{
-    width: 400px;
-    flex-wrap: wrap;
-    height: 400px;
+/* 
+   Frontend Concept: CSS Variables (Custom Properties)
+   Variables make it easy to maintain a consistent color scheme across the app.
+*/
+:root {
+    --bg-color: #faf8ef;
+    --text-color: #776e65;
+    --board-bg: #bbada0;
+    --cell-bg: rgba(238, 228, 218, 0.35);
+    
+    /* Tile Colors */
+    --tile-2: #eee4da;
+    --tile-4: #ede0c8;
+    --tile-8: #f2b179;
+    --tile-16: #f59563;
+    --tile-32: #f67c5f;
+    --tile-64: #f65e3b;
+    --tile-128: #edcf72;
+    --tile-256: #edcc61;
+    --tile-512: #edc850;
+    --tile-1024: #edc53f;
+    --tile-2048: #edc22e;
+    
+    --tile-light-text: #f9f6f2;
+    --tile-dark-text: #776e65;
+    
+    /* Grid sizing */
+    --grid-size: 400px;
+    --cell-size: 85px;
+    --grid-gap: 12px;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     display: flex;
-    background-color: rgb(153, 137, 116);
-    border-style:groove;
-    border-radius: 15px;
+    justify-content: center;
+    padding: 20px 10px;
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: contain; 
+    touch-action: none;
 }
-body{
-    margin-left: 20px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/2048_logo.svg/1200px-2048_logo.svg.png");
+
+.container {
+    width: var(--grid-size);
+    max-width: 100%;
 }
-.grid div{
-    width: 94px;
-    height: 94px;
-    background-color: rgb(212, 193, 139);
-    line-height: 90px; 
-    text-align: center;
-    font-size:xx-large;
+
+/* Header & Scores */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 60px;
     font-weight: bold;
-    border-style:groove;
-    border-radius: 15px;
+    margin: 0;
 }
 
-.score-container{
-    padding: 10px;
-    background-color: orange;
-    height: 30px;
-    width: 200px;
-    border-style: groove;
-    font-size:x-large;
+.scores-container {
+    display: flex;
+    gap: 10px;
 }
 
+.score-box {
+    background: #bbada0;
+    padding: 5px 20px;
+    border-radius: 3px;
+    color: white;
+    text-align: center;
+    min-width: 80px;
+}
 
-#result{
-    font-size:x-large;
-}
-button:hover{
-    background-color: orange;
+.score-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #eee4da;
+    text-transform: uppercase;
 }
 
-button{
-    background-color: grey;
-    color: black;
-    height: 50px;
-    width: 60px;   
+.score-value {
+    font-size: 25px;
+    font-weight: bold;
 }
-#reset{
-    width: 120px;
+
+/* Controls Row */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
-#up{
-    margin-left: 65px;
+
+.game-intro {
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.restart-btn {
+    background: #8f7a66;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.restart-btn:hover {
+    background: #9f8b77;
+}
+
+/* 
+   Frontend Concept: Relative & Absolute Positioning 
+   The game-container is `position: relative`. 
+   This means any child element with `position: absolute` (like our moving tiles)
+   will be positioned relative to this box, rather than the whole screen.
+*/
+.game-container {
+    position: relative;
+    width: var(--grid-size);
+    height: var(--grid-size);
+    background: var(--board-bg);
+    border-radius: 6px;
+    padding: var(--grid-gap);
+    margin-bottom: 30px;
+}
+
+/* 
+   Frontend Concept: CSS Grid
+   This creates a perfectly spaced 4x4 layout for the background cells.
+*/
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: var(--grid-gap);
+    width: 100%;
+    height: 100%;
+}
+
+.grid-cell {
+    background: var(--cell-bg);
+    border-radius: 3px;
+    width: 100%;
+    height: 100%;
+}
+
+.tile-container {
+    position: absolute;
+    top: var(--grid-gap);
+    left: var(--grid-gap);
+    right: var(--grid-gap);
+    bottom: var(--grid-gap);
+    pointer-events: none; /* Let clicks pass through to the grid */
+}
+
+/* The actual moving tiles */
+.tile {
+    position: absolute;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background: var(--tile-2);
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 35px;
+    font-weight: bold;
+    color: var(--tile-dark-text);
+    
+    /* 
+       Frontend Concept: CSS Transitions
+       When the `top` or `left` properties change in JavaScript, 
+       CSS will smoothly animate the tile to its new position over 100ms. 
+    */
+    transition: top 100ms ease, left 100ms ease, transform 100ms ease;
+    
+    /* 
+       Animation for when a tile first appears or merges. 
+       We define 'pop' at the bottom of the file.
+    */
+    animation: pop 200ms ease-in-out;
+}
+
+/* Tile Colors based on value */
+.tile-2 { background: var(--tile-2); }
+.tile-4 { background: var(--tile-4); }
+.tile-8 { background: var(--tile-8); color: var(--tile-light-text); }
+.tile-16 { background: var(--tile-16); color: var(--tile-light-text); }
+.tile-32 { background: var(--tile-32); color: var(--tile-light-text); }
+.tile-64 { background: var(--tile-64); color: var(--tile-light-text); }
+.tile-128 { background: var(--tile-128); color: var(--tile-light-text); font-size: 30px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.23), inset 0 0 0 1px rgba(255, 255, 255, 0.14); }
+.tile-256 { background: var(--tile-256); color: var(--tile-light-text); font-size: 30px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.31), inset 0 0 0 1px rgba(255, 255, 255, 0.19); }
+.tile-512 { background: var(--tile-512); color: var(--tile-light-text); font-size: 30px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.39), inset 0 0 0 1px rgba(255, 255, 255, 0.23); }
+.tile-1024 { background: var(--tile-1024); color: var(--tile-light-text); font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.47), inset 0 0 0 1px rgba(255, 255, 255, 0.27); }
+.tile-2048 { background: var(--tile-2048); color: var(--tile-light-text); font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.31); }
+
+/* Over 2048 (Super tiles) */
+.tile-super { background: #3c3a32; color: #f9f6f2; font-size: 25px; }
+
+/* Game Over Message Overlay */
+.game-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(238, 228, 218, 0.73);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 6px;
+    
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.game-message.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.game-message p {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.retry-btn {
+    background: #8f7a66;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Footer Instructions */
+.footer {
+    color: #776e65;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Keyframes for the tile appear/merge animation */
+@keyframes pop {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Responsive adjustments for mobile screens */
+@media screen and (max-width: 420px) {
+    :root {
+        --grid-size: 300px;
+        --cell-size: 61.5px; /* (300 - 12*5) / 4 */
+        --grid-gap: 10px;
+    }
+    
+    .title { font-size: 40px; }
+    .score-box { min-width: 60px; padding: 5px 10px; }
+    .game-intro { font-size: 14px; }
+    .restart-btn { font-size: 14px; padding: 8px 15px; }
+    
+    .tile { font-size: 25px; }
+    .tile-128, .tile-256, .tile-512 { font-size: 20px; }
+    .tile-1024, .tile-2048, .tile-super { font-size: 16px; }
 }
