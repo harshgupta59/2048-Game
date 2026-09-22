@@ -57,116 +57,92 @@ soundBtn.addEventListener('click', () => {
     if (isSoundOn) {
         soundBtn.classList.add('active');
         soundBtn.textContent = '🔊 Sound: ON';
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        initAudio();
     } else {
         soundBtn.classList.remove('active');
         soundBtn.textContent = '🔊 Sound: OFF';
     }
 });
 
-// Foley Sound Engine: Authentic physical tile sounds
+let delayNode = null;
+let feedbackGain = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Setup Dreamy Echo/Reverb
+        delayNode = audioCtx.createDelay();
+        delayNode.delayTime.value = 0.4; // 400ms echo
+        
+        feedbackGain = audioCtx.createGain();
+        feedbackGain.gain.value = 0.3; // 30% feedback
+        
+        delayNode.connect(feedbackGain);
+        feedbackGain.connect(delayNode);
+        
+        delayNode.connect(audioCtx.destination);
+    }
+}
+
+// Ambient Sound Engine: Ultimate Soothing Zen Audio
 function playPopSound(value) {
-    if (!isSoundOn || !audioCtx) return;
+    if (!isSoundOn) return;
+    initAudio();
     const now = audioCtx.currentTime;
     
-    // Body (Wood resonance)
+    // Pure, warm sine wave
     const osc = audioCtx.createOscillator();
-    const oscGain = audioCtx.createGain();
+    const gain = audioCtx.createGain();
     osc.type = 'sine';
     
-    // Pitch depends slightly on the tile value (200-400Hz range)
-    const baseFreq = 200 + (Math.log2(value) * 15);
-    osc.frequency.setValueAtTime(baseFreq, now);
-    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.8, now + 0.05); // pitch drop for impact
+    // C Major Pentatonic Scale (inherently relaxing)
+    const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+    let index = Math.max(0, Math.log2(value) - 2); 
+    if (index >= pentatonic.length) index = pentatonic.length - 1;
     
-    oscGain.gain.setValueAtTime(0, now);
-    oscGain.gain.linearRampToValueAtTime(0.8, now + 0.005);
-    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+    // Pitch down one octave for extra warmth and depth
+    osc.frequency.setValueAtTime(pentatonic[index] * 0.5, now);
     
-    // Snap (Physical impact noise)
-    const bufferSize = audioCtx.sampleRate * 0.05; // 50ms of noise
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-    }
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = buffer;
+    // Very soft envelope: no clicks, gentle fade in and out
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.4, now + 0.1); // slow 100ms attack
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5); // very long 1.5s fade out
     
-    const noiseFilter = audioCtx.createBiquadFilter();
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 1200; // sharp wood knock
-    
-    const noiseGain = audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(0.8, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-    
-    osc.connect(oscGain);
-    oscGain.connect(audioCtx.destination);
-    
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(audioCtx.destination);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination); // Direct sound
+    gain.connect(delayNode); // Send to Echo
     
     osc.start(now);
-    osc.stop(now + 0.1);
-    noise.start(now);
+    osc.stop(now + 2);
 }
 
 function playSlideSound() {
-    if (!isSoundOn || !audioCtx) return;
-    const now = audioCtx.currentTime;
-    
-    const bufferSize = audioCtx.sampleRate * 0.1; // 100ms
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.5; // quieter white noise
-    }
-    
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = buffer;
-    
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(400, now); // start muffled
-    filter.frequency.linearRampToValueAtTime(1200, now + 0.05); // open up (whoosh)
-    filter.frequency.linearRampToValueAtTime(400, now + 0.1); // muffle again
-    
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.linearRampToValueAtTime(0.4, now + 0.05);
-    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
-    
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    noise.start(now);
+    // Silence for sliding to keep the experience completely calm and uncluttered
 }
 
 function playChimeSound() {
-    // For combos, we'll do a highly resonant satisfying "ding"
-    if (!isSoundOn || !audioCtx) return;
+    if (!isSoundOn) return;
+    initAudio();
     const now = audioCtx.currentTime;
     
+    // A deep, resonant "Singing Bowl" for combos
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sine';
     
-    osc.frequency.setValueAtTime(880, now); // A5
-    osc.frequency.exponentialRampToValueAtTime(1760, now + 0.1); // Sweep up to A6
+    osc.frequency.setValueAtTime(130.81, now); // C3 (deep)
     
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.5, now + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    gain.gain.linearRampToValueAtTime(0.6, now + 0.2); // very slow attack
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 3.0); // massive 3 second decay
     
     osc.connect(gain);
     gain.connect(audioCtx.destination);
+    gain.connect(delayNode);
+    
     osc.start(now);
-    osc.stop(now + 0.5);
+    osc.stop(now + 4);
 }
 
 // Combo Animations
