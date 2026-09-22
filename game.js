@@ -17,7 +17,8 @@ let bestScore = parseInt(localStorage.getItem('2048_bestScore')) || 0;
 // Game Mode State
 let currentMode = 'CLASSIC';
 let timeAttackInterval = null;
-let timeAttackProgress = 100;
+let timeAttackStartTime = 0;
+let timeAttackDuration = 2000;
 
 // DOM Elements
 const scoreElement = document.getElementById('score');
@@ -138,26 +139,34 @@ function initGame() {
 // --- Time Attack Mechanics ---
 function startTimeAttack() {
     stopTimeAttack();
-    timeAttackProgress = 100;
+    timeAttackStartTime = Date.now();
     progressFill.style.transform = `scaleX(1)`;
     progressContainer.style.display = 'block';
     
-    // Run at 60fps (approx 16ms) for smooth progress bar shrinking
+    // Use an interval to visually update the progress bar, but calculate progress based on Date.now()
+    // This prevents the tab-throttling bug where the timer desyncs when the browser is minimized.
     timeAttackInterval = setInterval(() => {
-        if (isGameOver || isMoving) return;
+        if (isGameOver) return;
         
-        // 2000ms timer
-        timeAttackProgress -= (100 / (2000 / 16));
+        // If an animation is playing, pause the timer by pushing the start time forward!
+        if (isMoving) {
+            timeAttackStartTime += 16;
+            return;
+        }
         
-        if (timeAttackProgress <= 0) {
+        let elapsed = Date.now() - timeAttackStartTime;
+        let remainingRatio = 1 - (elapsed / timeAttackDuration);
+        
+        if (remainingRatio <= 0) {
             // Timer hit 0! Spawn a tile!
-            timeAttackProgress = 100;
+            timeAttackStartTime = Date.now(); // reset timer
             addRandomTile();
             checkGameOver();
+            remainingRatio = 1;
         }
         
         // Update visual bar
-        progressFill.style.transform = `scaleX(${Math.max(0, timeAttackProgress / 100)})`;
+        progressFill.style.transform = `scaleX(${Math.max(0, remainingRatio)})`;
     }, 16);
 }
 
